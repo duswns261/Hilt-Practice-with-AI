@@ -1,4 +1,4 @@
-# Hilt Practice
+# Hilt Practice with AI
 
 이 저장소는 Android 의존성 주입 라이브러리인 **Hilt**를 학습하고 실습하기 위한 프로젝트를 관리하는 상위 폴더입니다.
 
