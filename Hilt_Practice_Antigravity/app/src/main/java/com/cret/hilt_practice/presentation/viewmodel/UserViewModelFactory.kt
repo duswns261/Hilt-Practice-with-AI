@@ -10,6 +10,6 @@ class UserViewModelFactory(private val repository: UserRepository) : ViewModelPr
         if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
             return UserViewModel(repository) as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
