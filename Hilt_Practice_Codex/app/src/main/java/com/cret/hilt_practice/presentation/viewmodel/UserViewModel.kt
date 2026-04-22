@@ -11,7 +11,8 @@ import kotlinx.coroutines.launch
 
 data class UserUiState(
     val isLoading: Boolean = false,
-    val user: User? = null
+    val user: User? = null,
+    val errorMessage: String? = null
 )
 
 class UserViewModel(
@@ -22,12 +23,23 @@ class UserViewModel(
 
     fun fetchUser(userId: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val userData = repository.getUser(userId)
-            _uiState.value = UserUiState(
-                isLoading = false,
-                user = userData
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessage = null
             )
+
+            try {
+                val userData = repository.getUser(userId)
+                _uiState.value = UserUiState(
+                    isLoading = false,
+                    user = userData
+                )
+            } catch (exception: Exception) {
+                _uiState.value = UserUiState(
+                    isLoading = false,
+                    errorMessage = exception.message ?: "Failed to load user"
+                )
+            }
         }
     }
 }
