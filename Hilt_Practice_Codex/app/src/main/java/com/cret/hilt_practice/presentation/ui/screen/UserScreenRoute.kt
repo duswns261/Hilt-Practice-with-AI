@@ -8,9 +8,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cret.hilt_practice.presentation.model.UserUiState
 import com.cret.hilt_practice.presentation.viewmodel.UserViewModel
 import com.cret.hilt_practice.presentation.viewmodel.UserViewModelFactory
-import com.cret.hilt_practice.presentation.viewmodel.UserUiState
 
 @Composable
 fun UserScreenRoute(

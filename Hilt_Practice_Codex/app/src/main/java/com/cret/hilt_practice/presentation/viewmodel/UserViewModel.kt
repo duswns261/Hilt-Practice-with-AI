@@ -2,18 +2,12 @@ package com.cret.hilt_practice.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cret.hilt_practice.data.model.User
 import com.cret.hilt_practice.data.repository.UserRepository
+import com.cret.hilt_practice.presentation.model.UserUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-data class UserUiState(
-    val isLoading: Boolean = false,
-    val user: User? = null,
-    val errorMessage: String? = null
-)
 
 class UserViewModel(
     private val repository: UserRepository

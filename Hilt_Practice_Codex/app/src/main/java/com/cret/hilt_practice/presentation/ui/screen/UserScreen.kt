@@ -17,8 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cret.hilt_practice.data.model.User
+import com.cret.hilt_practice.presentation.model.UserUiState
 import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
-import com.cret.hilt_practice.presentation.viewmodel.UserUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
