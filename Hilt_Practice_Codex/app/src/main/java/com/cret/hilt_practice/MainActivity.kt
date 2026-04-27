@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.cret.hilt_practice.presentation.ui.screen.UserScreen
+import com.cret.hilt_practice.presentation.ui.screen.UserScreenRoute
 import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
 import com.cret.hilt_practice.presentation.viewmodel.UserViewModelFactory
 
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Hilt_PracticeTheme {
-                UserScreen(
+                UserScreenRoute(
                     userId = "manual-di-user",
                     viewModelFactory = userViewModelFactory
                 )

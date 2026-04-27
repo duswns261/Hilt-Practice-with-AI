@@ -9,7 +9,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.cret.hilt_practice"
+        applicationId = "com.cret.codex_hilt_practice"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
