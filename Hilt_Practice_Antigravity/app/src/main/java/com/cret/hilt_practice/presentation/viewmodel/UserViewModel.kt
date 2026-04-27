@@ -1,9 +1,11 @@
 package com.cret.hilt_practice.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.cret.hilt_practice.data.model.User
 import com.cret.hilt_practice.data.repository.UserRepository
+import com.cret.hilt_practice.presentation.ui.screen.UserUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,5 +42,14 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
 
     fun simulateError() {
         _uiState.value = UserUiState.Error("네트워크 오류가 발생했습니다.")
+    }
+
+    companion object {
+        fun factory(repository: UserRepository): ViewModelProvider.Factory =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                    UserViewModel(repository) as T
+            }
     }
 }

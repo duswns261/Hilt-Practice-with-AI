@@ -1,4 +1,4 @@
-package com.cret.hilt_practice.presentation.viewmodel
+package com.cret.hilt_practice.presentation.ui.screen
 
 import com.cret.hilt_practice.data.model.User
 

@@ -4,16 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.cret.hilt_practice.data.repository.UserRepositoryImpl
+import androidx.activity.viewModels
 import com.cret.hilt_practice.presentation.ui.screen.UserScreen
 import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
-import com.cret.hilt_practice.presentation.viewmodel.UserViewModelFactory
+import com.cret.hilt_practice.presentation.viewmodel.UserViewModel
 
 class MainActivity : ComponentActivity() {
 
-    // 의존성 그래프를 Activity 레벨에서 조립
-    private val repository = UserRepositoryImpl()
-    private val viewModelFactory = UserViewModelFactory(repository)
+    private val userViewModel: UserViewModel by viewModels {
+        val repository = (application as HiltPracticeApplication).container.repository
+        UserViewModel.factory(repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
             Hilt_PracticeTheme {
                 UserScreen(
                     userId = "123",
-                    viewModelFactory = viewModelFactory
+                    viewModel = userViewModel
                 )
             }
         }
