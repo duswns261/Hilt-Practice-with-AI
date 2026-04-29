@@ -10,7 +10,7 @@ import com.cret.hilt_practice.presentation.viewmodel.UserViewModelFactory
 
 class MainActivity : ComponentActivity() {
     private val appContainer by lazy {
-        (application as ManualDiApplication).appContainer
+        (application as HiltPracticeApplication).appContainer
     }
 
     private val userViewModelFactory by lazy {
