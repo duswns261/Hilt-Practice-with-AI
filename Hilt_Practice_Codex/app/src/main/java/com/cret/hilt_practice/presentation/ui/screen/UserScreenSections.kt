@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,47 +22,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cret.hilt_practice.data.model.User
 import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
 
 @Composable
-fun ScenarioSelector(
-    selectedScenario: UserScreenScenario,
-    onScenarioSelected: (UserScreenScenario) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(
-            text = "State Playground",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Switch between the simple UI states while keeping the manual DI sample intact.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            UserScreenScenario.entries.forEach { scenario ->
-                FilterChip(
-                    selected = selectedScenario == scenario,
-                    onClick = { onScenarioSelected(scenario) },
-                    label = { Text(text = scenario.label) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun UserOverviewCard(user: User?) {
+fun UserOverviewCard(user: UserProfileUiModel?) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -131,7 +100,7 @@ fun UserOverviewCard(user: User?) {
 }
 
 @Composable
-fun UserDetailsCard(user: User) {
+fun UserDetailsCard(user: UserProfileUiModel) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -175,7 +144,11 @@ fun LoadingCard() {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.size(42.dp),
+                modifier = Modifier
+                    .size(42.dp)
+                    .semantics {
+                        contentDescription = "Loading user profile"
+                    },
                 strokeWidth = 4.dp
             )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -266,6 +239,13 @@ private fun ProfileBadge(name: String?) {
     Box(
         modifier = Modifier
             .size(68.dp)
+            .semantics {
+                contentDescription = if (name == null) {
+                    "Profile initials placeholder"
+                } else {
+                    "Profile initials for $name"
+                }
+            }
             .clip(CircleShape)
             .background(
                 Brush.linearGradient(
@@ -328,22 +308,11 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
-private val sectionPreviewUser = User(
+private val sectionPreviewUser = UserProfileUiModel(
     id = "preview-user",
     name = "Preview Student",
     email = "preview@example.com"
 )
-
-@Preview(showBackground = true, name = "Scenario Selector")
-@Composable
-private fun ScenarioSelectorPreview() {
-    Hilt_PracticeTheme(dynamicColor = false) {
-        ScenarioSelector(
-            selectedScenario = UserScreenScenario.Loaded,
-            onScenarioSelected = {}
-        )
-    }
-}
 
 @Preview(showBackground = true, name = "Overview Loaded")
 @Composable

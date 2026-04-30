@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Codex_Hilt_Practice</string>
+    <string name="profile_error_missing_user_id">User profile information is missing.</string>
+    <string name="profile_error_user_not_found">We could not find that user profile.</string>
 </resources>

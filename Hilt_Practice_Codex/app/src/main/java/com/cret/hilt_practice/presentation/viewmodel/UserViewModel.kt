@@ -2,15 +2,22 @@ package com.cret.hilt_practice.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cret.hilt_practice.data.repository.UserRepository
-import com.cret.hilt_practice.presentation.model.UserUiState
+import com.cret.hilt_practice.R
+import com.cret.hilt_practice.domain.error.UserNotFoundException
+import com.cret.hilt_practice.domain.model.UserProfile
+import com.cret.hilt_practice.domain.usecase.GetUserProfileUseCase
+import com.cret.hilt_practice.presentation.ui.screen.UserProfileUiModel
+import com.cret.hilt_practice.presentation.ui.screen.UserUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class UserViewModel(
-    private val repository: UserRepository
+@HiltViewModel
+class UserViewModel @Inject constructor(
+    private val getUserProfileUseCase: GetUserProfileUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(UserUiState())
     val uiState: StateFlow<UserUiState> = _uiState.asStateFlow()
@@ -19,21 +26,36 @@ class UserViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null
+                errorMessageRes = null
             )
 
             try {
-                val userData = repository.getUser(userId)
+                val userData = getUserProfileUseCase(userId)
                 _uiState.value = UserUiState(
                     isLoading = false,
-                    user = userData
+                    user = userData.toUiModel()
                 )
-            } catch (exception: Exception) {
+            } catch (exception: UserNotFoundException) {
                 _uiState.value = UserUiState(
                     isLoading = false,
-                    errorMessage = exception.message ?: "Failed to load user"
+                    errorMessageRes = R.string.profile_error_user_not_found
                 )
             }
         }
+    }
+
+    fun showMissingUserIdError() {
+        _uiState.value = UserUiState(
+            isLoading = false,
+            errorMessageRes = R.string.profile_error_missing_user_id
+        )
+    }
+
+    private fun UserProfile.toUiModel(): UserProfileUiModel {
+        return UserProfileUiModel(
+            id = id,
+            name = name,
+            email = email
+        )
     }
 }
