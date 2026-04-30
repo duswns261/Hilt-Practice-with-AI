@@ -1,17 +1,22 @@
 package com.cret.hilt_practice.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.cret.hilt_practice.data.model.User
-import com.cret.hilt_practice.data.repository.UserRepository
-import com.cret.hilt_practice.presentation.ui.screen.UserUiState
+import com.cret.hilt_practice.data.model.UserError
+import com.cret.hilt_practice.domain.usecase.GetUserUseCase
+import com.cret.hilt_practice.presentation.model.UserUiModel
+import com.cret.hilt_practice.presentation.model.UserUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class UserViewModel(private val repository: UserRepository) : ViewModel() {
+@HiltViewModel
+class UserViewModel @Inject constructor(
+    private val getUserUseCase: GetUserUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UserUiState>(UserUiState.Loading)
     val uiState: StateFlow<UserUiState> = _uiState.asStateFlow()
@@ -19,37 +24,13 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
     fun fetchUser(userId: String) {
         _uiState.value = UserUiState.Loading
         viewModelScope.launch {
-            try {
-                val user = repository.getUser(userId)
-                _uiState.value = if (user != null) {
-                    UserUiState.Success(user)
-                } else {
-                    UserUiState.Error("사용자를 찾을 수 없습니다.")
-                }
-            } catch (e: Exception) {
-                _uiState.value = UserUiState.Error(e.message ?: "알 수 없는 오류가 발생했습니다.")
-            }
+            _uiState.value = getUserUseCase(userId).fold(
+                onSuccess = { user -> UserUiState.Success(user.toUiModel()) },
+                onFailure = { throwable -> UserUiState.Error(UserError.from(throwable)) }
+            )
         }
     }
 
-    fun simulateLoading() {
-        _uiState.value = UserUiState.Loading
-    }
-
-    fun simulateSuccess(userId: String) {
-        _uiState.value = UserUiState.Success(User(id = userId, name = "Mock User"))
-    }
-
-    fun simulateError() {
-        _uiState.value = UserUiState.Error("네트워크 오류가 발생했습니다.")
-    }
-
-    companion object {
-        fun factory(repository: UserRepository): ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    UserViewModel(repository) as T
-            }
-    }
+    private fun com.cret.hilt_practice.data.model.User.toUiModel() =
+        UserUiModel(id = id, displayName = name)
 }
