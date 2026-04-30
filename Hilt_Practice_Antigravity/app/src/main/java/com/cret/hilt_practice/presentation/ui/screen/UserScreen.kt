@@ -9,46 +9,28 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import com.cret.hilt_practice.data.model.User
+import com.cret.hilt_practice.R
+import com.cret.hilt_practice.data.model.UserError
+import com.cret.hilt_practice.presentation.model.UserUiModel
+import com.cret.hilt_practice.presentation.model.UserUiState
 import com.cret.hilt_practice.presentation.ui.component.ErrorContent
 import com.cret.hilt_practice.presentation.ui.component.LoadingContent
-import com.cret.hilt_practice.presentation.ui.component.StateControlBar
 import com.cret.hilt_practice.presentation.ui.component.UserProfile
 import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
-import com.cret.hilt_practice.presentation.viewmodel.UserViewModel
 
 @Composable
-fun UserScreen(
-    userId: String,
-    viewModel: UserViewModel
-) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(userId) {
-        viewModel.fetchUser(userId)
-    }
-
-    UserScreenContent(
-        uiState = uiState,
-        onLoadingClick = { viewModel.simulateLoading() },
-        onSuccessClick = { viewModel.simulateSuccess(userId) },
-        onErrorClick = { viewModel.simulateError() }
-    )
+fun UserScreen(uiState: UserUiState) {
+    UserScreenContent(uiState = uiState)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserScreenContent(
+private fun UserScreenContent(
     uiState: UserUiState,
-    onLoadingClick: () -> Unit = {},
-    onSuccessClick: () -> Unit = {},
-    onErrorClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -66,14 +48,6 @@ fun UserScreenContent(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
             )
-        },
-        bottomBar = {
-            StateControlBar(
-                uiState = uiState,
-                onLoadingClick = onLoadingClick,
-                onSuccessClick = onSuccessClick,
-                onErrorClick = onErrorClick
-            )
         }
     ) { paddingValues ->
         when (uiState) {
@@ -85,22 +59,28 @@ fun UserScreenContent(
                 modifier = Modifier.padding(paddingValues)
             )
             is UserUiState.Error -> ErrorContent(
-                message = uiState.message,
+                message = stringResource(uiState.error.toStringRes()),
                 modifier = Modifier.padding(paddingValues)
             )
         }
     }
 }
 
+private fun UserError.toStringRes(): Int = when (this) {
+    UserError.NotFound -> R.string.error_user_not_found
+    UserError.Network -> R.string.error_network
+    UserError.Unknown -> R.string.error_unknown
+}
+
 // ──────────────── Previews ────────────────
 
-private val previewUser = User(id = "user_123", name = "Mock User")
+private val previewUser = UserUiModel(id = "user_123", displayName = "Mock User")
 
 @Preview(name = "UserScreen – Loading", showBackground = true)
 @Composable
 private fun PreviewLoading() {
     Hilt_PracticeTheme(dynamicColor = false) {
-        UserScreenContent(uiState = UserUiState.Loading)
+        UserScreen(uiState = UserUiState.Loading)
     }
 }
 
@@ -108,7 +88,7 @@ private fun PreviewLoading() {
 @Composable
 private fun PreviewSuccess() {
     Hilt_PracticeTheme(dynamicColor = false) {
-        UserScreenContent(uiState = UserUiState.Success(previewUser))
+        UserScreen(uiState = UserUiState.Success(previewUser))
     }
 }
 
@@ -120,7 +100,7 @@ private fun PreviewSuccess() {
 @Composable
 private fun PreviewSuccessDark() {
     Hilt_PracticeTheme(darkTheme = true, dynamicColor = false) {
-        UserScreenContent(uiState = UserUiState.Success(previewUser))
+        UserScreen(uiState = UserUiState.Success(previewUser))
     }
 }
 
@@ -128,6 +108,6 @@ private fun PreviewSuccessDark() {
 @Composable
 private fun PreviewError() {
     Hilt_PracticeTheme(dynamicColor = false) {
-        UserScreenContent(uiState = UserUiState.Error("네트워크 오류가 발생했습니다."))
+        UserScreen(uiState = UserUiState.Error(UserError.Network))
     }
 }

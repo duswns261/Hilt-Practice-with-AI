@@ -30,11 +30,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cret.hilt_practice.data.model.User
+import com.cret.hilt_practice.presentation.model.UserUiModel
 import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
 
 @Composable
-fun UserProfile(user: User, modifier: Modifier = Modifier) {
+fun UserProfile(user: UserUiModel, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -52,7 +52,7 @@ fun UserProfile(user: User, modifier: Modifier = Modifier) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = user.name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                text = user.displayName.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -62,7 +62,7 @@ fun UserProfile(user: User, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = user.name,
+            text = user.displayName,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
@@ -83,7 +83,7 @@ fun UserProfile(user: User, modifier: Modifier = Modifier) {
                 InfoRow(
                     icon = Icons.Default.Person,
                     label = "이름",
-                    value = user.name
+                    value = user.displayName
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -153,6 +153,6 @@ private fun InfoRow(
 @Composable
 private fun UserProfileLightPreview() {
     Hilt_PracticeTheme(dynamicColor = false) {
-        UserProfile(user = User(id = "user_123", name = "Mock User"))
+        UserProfile(user = UserUiModel(id = "user_123", displayName = "Mock User"))
     }
 }

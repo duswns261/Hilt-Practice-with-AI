@@ -15,15 +15,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cret.hilt_practice.R
 import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
 
 @Composable
 fun ErrorContent(message: String, modifier: Modifier = Modifier) {
+    val errorDescription = stringResource(R.string.content_desc_error)
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .semantics { contentDescription = errorDescription },
         contentAlignment = Alignment.Center
     ) {
         Column(
