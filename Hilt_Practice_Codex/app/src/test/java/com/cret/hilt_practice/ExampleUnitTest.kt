@@ -1,9 +1,10 @@
 package com.cret.hilt_practice
 
-import com.cret.hilt_practice.data.model.User
-import com.cret.hilt_practice.data.repository.UserRepository
+import com.cret.hilt_practice.domain.error.UserNotFoundException
+import com.cret.hilt_practice.domain.model.UserProfile
+import com.cret.hilt_practice.domain.repository.UserRepository
+import com.cret.hilt_practice.domain.usecase.GetUserProfileUseCase
 import com.cret.hilt_practice.presentation.viewmodel.UserViewModel
-import com.cret.hilt_practice.presentation.viewmodel.UserViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -32,10 +33,10 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun fetchUser_updatesUiState_withManualDependencyInjection() = runTest {
+    fun fetchUser_updatesUiState_withConstructorInjectedRepository() = runTest {
         val fakeRepository = object : UserRepository {
-            override suspend fun getUser(userId: String): User {
-                return User(
+            override suspend fun getUser(userId: String): UserProfile {
+                return UserProfile(
                     id = userId,
                     name = "Test User",
                     email = "test@example.com"
@@ -43,7 +44,7 @@ class ExampleUnitTest {
             }
         }
 
-        val viewModel = UserViewModel(repository = fakeRepository)
+        val viewModel = UserViewModel(GetUserProfileUseCase(fakeRepository))
 
         viewModel.fetchUser("test-id")
         testDispatcher.scheduler.advanceUntilIdle()
@@ -58,12 +59,12 @@ class ExampleUnitTest {
     @Test
     fun fetchUser_updatesUiState_withError_whenRepositoryFails() = runTest {
         val fakeRepository = object : UserRepository {
-            override suspend fun getUser(userId: String): User {
-                throw IllegalStateException("User fetch failed")
+            override suspend fun getUser(userId: String): UserProfile {
+                throw UserNotFoundException(userId)
             }
         }
 
-        val viewModel = UserViewModel(repository = fakeRepository)
+        val viewModel = UserViewModel(GetUserProfileUseCase(fakeRepository))
 
         viewModel.fetchUser("broken-id")
         testDispatcher.scheduler.advanceUntilIdle()
@@ -72,25 +73,24 @@ class ExampleUnitTest {
 
         assertFalse(uiState.isLoading)
         assertNull(uiState.user)
-        assertEquals("User fetch failed", uiState.errorMessage)
+        assertEquals(R.string.profile_error_user_not_found, uiState.errorMessageRes)
     }
 
     @Test
-    fun factory_createsUserViewModel_withInjectedRepository() {
+    fun showMissingUserIdError_updatesUiState_withMissingUserIdMessage() {
         val fakeRepository = object : UserRepository {
-            override suspend fun getUser(userId: String): User {
-                return User(
-                    id = userId,
-                    name = "Factory User",
-                    email = "factory@example.com"
-                )
+            override suspend fun getUser(userId: String): UserProfile {
+                error("Repository should not be called")
             }
         }
+        val viewModel = UserViewModel(GetUserProfileUseCase(fakeRepository))
 
-        val factory = UserViewModelFactory(repository = fakeRepository)
+        viewModel.showMissingUserIdError()
 
-        val viewModel = factory.create(UserViewModel::class.java)
+        val uiState = viewModel.uiState.value
 
-        assertEquals(UserViewModel::class.java, viewModel::class.java)
+        assertFalse(uiState.isLoading)
+        assertNull(uiState.user)
+        assertEquals(R.string.profile_error_missing_user_id, uiState.errorMessageRes)
     }
 }
