@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,6 +31,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
+
+@Composable
+fun DebugStateControls(
+    selectedState: UserScreenDebugState,
+    onStateSelected: (UserScreenDebugState) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+            text = "Debug state",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            UserScreenDebugState.entries.forEach { state ->
+                FilterChip(
+                    selected = selectedState == state,
+                    onClick = { onStateSelected(state) },
+                    label = { Text(text = state.label) }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun UserOverviewCard(user: UserProfileUiModel?) {
@@ -313,6 +340,17 @@ private val sectionPreviewUser = UserProfileUiModel(
     name = "Preview Student",
     email = "preview@example.com"
 )
+
+@Preview(showBackground = true, name = "Debug State Controls")
+@Composable
+private fun DebugStateControlsPreview() {
+    Hilt_PracticeTheme(dynamicColor = false) {
+        DebugStateControls(
+            selectedState = UserScreenDebugState.Loaded,
+            onStateSelected = {}
+        )
+    }
+}
 
 @Preview(showBackground = true, name = "Overview Loaded")
 @Composable

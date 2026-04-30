@@ -25,7 +25,8 @@ import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
 @Composable
 fun UserScreen(
     uiState: UserUiState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    debugControls: (@Composable () -> Unit)? = null
 ) {
     Scaffold(
         modifier = modifier,
@@ -57,6 +58,8 @@ fun UserScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            debugControls?.invoke()
+
             UserOverviewCard(user = uiState.user)
 
             if (uiState.isLoading) {
@@ -110,6 +113,16 @@ private fun UserScreenErrorPreview() {
     Hilt_PracticeTheme(dynamicColor = false) {
         UserScreen(
             uiState = UserUiState(errorMessageRes = R.string.profile_error_user_not_found)
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Missing User ID")
+@Composable
+private fun UserScreenMissingUserIdPreview() {
+    Hilt_PracticeTheme(dynamicColor = false) {
+        UserScreen(
+            uiState = UserUiState(errorMessageRes = R.string.profile_error_missing_user_id)
         )
     }
 }
