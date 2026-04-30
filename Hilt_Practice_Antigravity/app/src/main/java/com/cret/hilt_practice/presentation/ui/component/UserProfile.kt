@@ -149,10 +149,24 @@ private fun InfoRow(
 
 // ──────────────── Previews ────────────────
 
+private val previewUser = UserUiModel(id = "user_123", displayName = "Mock User")
+
 @Preview(name = "UserProfile – Light", showBackground = true)
 @Composable
 private fun UserProfileLightPreview() {
     Hilt_PracticeTheme(dynamicColor = false) {
-        UserProfile(user = UserUiModel(id = "user_123", displayName = "Mock User"))
+        UserProfile(user = previewUser)
+    }
+}
+
+@Preview(
+    name = "UserProfile – Dark",
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun UserProfileDarkPreview() {
+    Hilt_PracticeTheme(darkTheme = true, dynamicColor = false) {
+        UserProfile(user = previewUser)
     }
 }

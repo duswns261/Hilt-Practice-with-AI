@@ -56,10 +56,38 @@ fun ErrorContent(message: String, modifier: Modifier = Modifier) {
 
 // ──────────────── Previews ────────────────
 
-@Preview(name = "ErrorContent", showBackground = true)
+@Preview(name = "ErrorContent – Network · Light", showBackground = true)
 @Composable
-private fun ErrorContentPreview() {
+private fun ErrorContentNetworkPreview() {
     Hilt_PracticeTheme(dynamicColor = false) {
         ErrorContent(message = "네트워크 오류가 발생했습니다.")
+    }
+}
+
+@Preview(
+    name = "ErrorContent – Network · Dark",
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun ErrorContentNetworkDarkPreview() {
+    Hilt_PracticeTheme(darkTheme = true, dynamicColor = false) {
+        ErrorContent(message = "네트워크 오류가 발생했습니다.")
+    }
+}
+
+@Preview(name = "ErrorContent – Not Found", showBackground = true)
+@Composable
+private fun ErrorContentNotFoundPreview() {
+    Hilt_PracticeTheme(dynamicColor = false) {
+        ErrorContent(message = "사용자를 찾을 수 없습니다.")
+    }
+}
+
+@Preview(name = "ErrorContent – Unknown", showBackground = true)
+@Composable
+private fun ErrorContentUnknownPreview() {
+    Hilt_PracticeTheme(dynamicColor = false) {
+        ErrorContent(message = "알 수 없는 오류가 발생했습니다.")
     }
 }

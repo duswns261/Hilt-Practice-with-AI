@@ -33,10 +33,22 @@ fun LoadingContent(modifier: Modifier = Modifier) {
 
 // ──────────────── Previews ────────────────
 
-@Preview(name = "LoadingContent", showBackground = true)
+@Preview(name = "LoadingContent – Light", showBackground = true)
 @Composable
 private fun LoadingContentPreview() {
     Hilt_PracticeTheme(dynamicColor = false) {
+        LoadingContent()
+    }
+}
+
+@Preview(
+    name = "LoadingContent – Dark",
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun LoadingContentDarkPreview() {
+    Hilt_PracticeTheme(darkTheme = true, dynamicColor = false) {
         LoadingContent()
     }
 }
