@@ -42,7 +42,7 @@ fun DebugUserRoute(
     val displayState = debugOverride ?: actualState
 
     LaunchedEffect(userId) {
-        viewModel.fetchUser(userId)
+        viewModel.loadUserInformation(userId)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {

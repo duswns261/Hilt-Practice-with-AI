@@ -37,11 +37,11 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `fetchUser 성공 시 Success 상태가 된다`() = runTest {
+    fun `loadUserInformation 성공 시 Success 상태가 된다`() = runTest {
         val user = User(id = "123", name = "Mock User")
         coEvery { getUserUseCase("123") } returns Result.success(user)
 
-        viewModel.fetchUser("123")
+        viewModel.loadUserInformation("123")
         advanceUntilIdle()
 
         val expected = UserUiState.Success(UserUiModel(id = "123", displayName = "Mock User"))
@@ -49,20 +49,20 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `fetchUser 실패 시 Error 상태가 된다`() = runTest {
+    fun `loadUserInformation 실패 시 Error 상태가 된다`() = runTest {
         coEvery { getUserUseCase(any()) } returns Result.failure(RuntimeException())
 
-        viewModel.fetchUser("123")
+        viewModel.loadUserInformation("123")
         advanceUntilIdle()
 
         assertTrue(viewModel.uiState.value is UserUiState.Error)
     }
 
     @Test
-    fun `fetchUser 실패 시 Unknown 에러 타입이 된다`() = runTest {
+    fun `loadUserInformation 실패 시 Unknown 에러 타입이 된다`() = runTest {
         coEvery { getUserUseCase(any()) } returns Result.failure(RuntimeException())
 
-        viewModel.fetchUser("123")
+        viewModel.loadUserInformation("123")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as UserUiState.Error
@@ -70,10 +70,10 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `fetchUser 호출 시 Loading 상태로 전환된다`() = runTest {
+    fun `loadUserInformation 호출 시 Loading 상태로 전환된다`() = runTest {
         coEvery { getUserUseCase(any()) } returns Result.success(User("123", "Mock User"))
 
-        viewModel.fetchUser("123")
+        viewModel.loadUserInformation("123")
 
         assertEquals(UserUiState.Loading, viewModel.uiState.value)
     }
