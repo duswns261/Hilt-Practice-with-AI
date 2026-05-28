@@ -2,7 +2,7 @@
 
 > **목적**: 이 문서는 AI 어시스턴트(Antigravity)가 이 프로젝트를 처음 대화에서도 즉시 파악하고  
 > 정확한 코드 리뷰·기능 추가·리팩토링 지원을 할 수 있도록 작성된 컨텍스트 파일입니다.  
-> **마지막 업데이트**: 2026-05-28
+> **마지막 업데이트**: 2026-05-28 (Navigation 완성)
 
 ---
 
@@ -15,7 +15,7 @@
 | **Application ID** | `com.cret.antigravity_hilt_practice` |
 | **GitHub** | https://github.com/duswns261/Hilt-Practice-with-AI |
 | **목적** | Manual DI(`AppContainer`) → Hilt 마이그레이션 학습 + 코드 품질 배포 수준까지 향상 |
-| **현재 단계** | ✅ Hilt 적용 완료 / ✅ 코드 리뷰·리팩토링 13개 이슈 해결 / ✅ 단위 테스트 10개 작성 |
+| **현재 단계** | ✅ Hilt 적용 완료 / ✅ 코드 리뷰·리팩토링 13개 이슈 해결 / ✅ 단위 테스트 10개 작성 / ✅ Navigation 완성 |
 
 ### 학습 맥락
 
@@ -62,10 +62,15 @@ presentation/
   model/
     UserUiModel.kt          — UI 전용 모델 (도메인 모델 노출 차단)
     UserUiState.kt          — sealed interface (Loading / Success / Error)
+  navigation/
+    AppNavHost.kt           — NavHost, 전체 라우트 등록
+    HomeDestination.kt      — object, ROUTE = "home"
+    UserDestination.kt      — object, ROUTE = "user/{userId}", createRoute()
   viewmodel/
     UserViewModel.kt        — @HiltViewModel, StateFlow<UserUiState>
   ui/
     screen/
+      HomeRoute.kt          — 홈 화면 Composable, DEMO_USER_ID 보유, onUserClick 콜백
       UserRoute.kt          — hiltViewModel() + LaunchedEffect (상태 연결)
       UserScreen.kt         — 순수 Composable (uiState만 받음, 테스트 가능)
     component/
@@ -77,14 +82,21 @@ presentation/
 ### 데이터 흐름
 
 ```
+MainActivity
+    ↓ rememberNavController
+AppNavHost
+    ├─ "home"  →  HomeRoute  →  onUserClick(userId)
+    │                                ↓ navController.navigate
+    └─ "user/{userId}"  →  DebugUserRoute(userId from backStackEntry)
+                                ↓
+                           UserRoute (hiltViewModel + LaunchedEffect)
+                                ↓
 UserRepositoryImpl
     ↓ Result<User>
 GetUserUseCase
     ↓ Result<User>
 UserViewModel  →  Result.fold()  →  UserUiState
     ↓ StateFlow<UserUiState>
-UserRoute  (hiltViewModel + LaunchedEffect)
-    ↓ uiState
 UserScreen  (순수 Composable — 테스트 가능)
 ```
 
@@ -157,6 +169,7 @@ Hilt_Practice_Antigravity/
 │       │           │   └── UserViewModel.kt     # @HiltViewModel
 │       │           └── ui/
 │       │               ├── screen/
+│       │               │   ├── HomeRoute.kt        # 홈 화면, onUserClick 콜백
 │       │               │   ├── UserRoute.kt
 │       │               │   └── UserScreen.kt
 │       │               ├── component/
@@ -164,6 +177,10 @@ Hilt_Practice_Antigravity/
 │       │               │   ├── LoadingContent.kt
 │       │               │   └── ErrorContent.kt
 │       │               └── theme/
+│       │           └── navigation/
+│       │               ├── AppNavHost.kt           # NavHost, 전체 라우트 등록
+│       │               ├── HomeDestination.kt      # ROUTE = "home"
+│       │               └── UserDestination.kt      # ROUTE = "user/{userId}"
 │       ├── debug/
 │       │   └── .../screen/DebugUserRoute.kt    # 상태 컨트롤 바 포함
 │       ├── release/
@@ -261,6 +278,7 @@ test/
 | 4 | 코드 리뷰 13개 이슈 해결 (Result<T>, UseCase, UiModel, sealed class 등) | 2026-04 |
 | 5 | Debug 상태 컨트롤 바 추가 (build variant source set 분리) | 2026-04 |
 | 6 | 단위 테스트 10개 작성 | 2026-04 |
+| 7 | Navigation 완성: HomeRoute 신규 + AppNavHost·MainActivity 연결 | 2026-05-28 |
 
 **해결한 주요 리팩토링 이슈**:
 - `User?` → `Result<User>` 반환 타입 변경
@@ -311,6 +329,7 @@ test/
 |---------|------|-----------|
 | 🔴 즉시 | Hilt Component Hierarchy 심화 | 어노테이션 사용 가능, 내부 원리 보완 필요 |
 | 🔴 즉시 | `@Qualifier` 활용 | 미학습 |
+| 🟡 단기 | Navigation 타입 안전 전환 (`@Serializable`) | 문자열 기반 완성, 타입 안전 전환 대상 |
 | 🟡 단기 | Kotlin Flow 심화 (`combine`, `SharedFlow`) | `StateFlow`만 사용 중 |
 | 🟡 단기 | Compose 심화 (`derivedStateOf`, `SideEffect` 비교) | 기본 사용 중 |
 | 🟢 중기 | 멀티모듈 아키텍처 (`:feature`, `:data`, `:domain`) | 단일 `:app` 모듈 |
