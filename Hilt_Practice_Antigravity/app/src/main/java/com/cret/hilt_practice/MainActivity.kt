@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.cret.hilt_practice.presentation.ui.screen.DebugUserRoute
+import androidx.navigation.compose.rememberNavController
+import com.cret.hilt_practice.presentation.navigation.AppNavHost
 import com.cret.hilt_practice.presentation.ui.theme.Hilt_PracticeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,12 +17,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Hilt_PracticeTheme {
-                DebugUserRoute(userId = DEMO_USER_ID)
+                val navController = rememberNavController()
+                AppNavHost(navController = navController)
             }
         }
-    }
-
-    companion object {
-        private const val DEMO_USER_ID = "user_123"
     }
 }
