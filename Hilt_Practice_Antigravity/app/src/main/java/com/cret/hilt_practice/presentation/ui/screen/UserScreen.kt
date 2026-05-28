@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.cret.hilt_practice.R
-import com.cret.hilt_practice.data.model.UserError
+import com.cret.hilt_practice.domain.model.UserError
 import com.cret.hilt_practice.presentation.model.UserUiModel
 import com.cret.hilt_practice.presentation.model.UserUiState
 import com.cret.hilt_practice.presentation.ui.component.ErrorContent

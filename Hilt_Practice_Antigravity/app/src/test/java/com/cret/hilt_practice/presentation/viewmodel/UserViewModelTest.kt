@@ -1,7 +1,7 @@
 package com.cret.hilt_practice.presentation.viewmodel
 
-import com.cret.hilt_practice.data.model.User
-import com.cret.hilt_practice.data.model.UserError
+import com.cret.hilt_practice.domain.model.User
+import com.cret.hilt_practice.domain.model.UserError
 import com.cret.hilt_practice.domain.usecase.GetUserUseCase
 import com.cret.hilt_practice.presentation.model.UserUiModel
 import com.cret.hilt_practice.presentation.model.UserUiState

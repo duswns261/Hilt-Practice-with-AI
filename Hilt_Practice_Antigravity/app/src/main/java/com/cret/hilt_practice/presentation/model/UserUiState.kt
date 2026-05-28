@@ -1,6 +1,6 @@
 package com.cret.hilt_practice.presentation.model
 
-import com.cret.hilt_practice.data.model.UserError
+import com.cret.hilt_practice.domain.model.UserError
 
 sealed interface UserUiState {
     data object Loading : UserUiState

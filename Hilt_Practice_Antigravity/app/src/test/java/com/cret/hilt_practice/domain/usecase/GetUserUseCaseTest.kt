@@ -1,7 +1,7 @@
 package com.cret.hilt_practice.domain.usecase
 
-import com.cret.hilt_practice.data.model.User
-import com.cret.hilt_practice.data.repository.UserRepository
+import com.cret.hilt_practice.domain.model.User
+import com.cret.hilt_practice.domain.repository.UserRepository
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest

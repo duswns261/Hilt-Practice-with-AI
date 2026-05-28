@@ -2,7 +2,7 @@
 
 > **목적**: 이 문서는 AI 어시스턴트(Antigravity)가 이 프로젝트를 처음 대화에서도 즉시 파악하고  
 > 정확한 코드 리뷰·기능 추가·리팩토링 지원을 할 수 있도록 작성된 컨텍스트 파일입니다.  
-> **마지막 업데이트**: 2026-05-28 (Navigation 완성)
+> **마지막 업데이트**: 2026-05-28 (domain 레이어 정리, CancellationException 적용)
 
 ---
 
@@ -47,14 +47,15 @@
 
 ```
 data/
-  model/
-    User.kt          — 도메인 모델 (data class)
-    UserError.kt     — sealed class (NotFound / Network / Unknown)
   repository/
-    UserRepository.kt       — interface, 반환 Result<User>
-    UserRepositoryImpl.kt   — @Inject constructor, 가짜 API 시뮬레이션
+    UserRepositoryImpl.kt   — @Inject constructor, domain 모델 반환, mock API
 
 domain/
+  model/
+    User.kt                 — data class
+    UserError.kt            — sealed class (NotFound / Network / Unknown)
+  repository/
+    UserRepository.kt       — interface, 반환 Result<User>
   usecase/
     GetUserUseCase.kt       — @Inject constructor, Repository 호출 래핑
 
@@ -117,7 +118,7 @@ UserScreen  (순수 Composable — 테스트 가능)
 | `@AndroidEntryPoint` | `MainActivity` | Activity에 Hilt 주입 활성화 |
 | `@HiltViewModel` | `UserViewModel` | ViewModel Hilt 주입 |
 | `@Module` + `@InstallIn(SingletonComponent)` | `AppModule` | 모듈 등록 |
-| `@Binds` | `AppModule` | `UserRepository` 인터페이스 → `UserRepositoryImpl` 바인딩 |
+| `@Binds` | `AppModule` | `domain.repository.UserRepository` → `UserRepositoryImpl` 바인딩 |
 | `@Inject constructor` | `UserRepositoryImpl`, `GetUserUseCase` | 생성자 주입 |
 | `hiltViewModel()` | `UserRoute` | Composable에서 HiltViewModel 획득 |
 
@@ -152,13 +153,14 @@ Hilt_Practice_Antigravity/
 │       │       ├── di/
 │       │       │   └── AppModule.kt             # @Module @Binds
 │       │       ├── data/
+│       │       │   └── repository/
+│       │       │       └── UserRepositoryImpl.kt
+│       │       ├── domain/
 │       │       │   ├── model/
 │       │       │   │   ├── User.kt
 │       │       │   │   └── UserError.kt         # sealed class
-│       │       │   └── repository/
-│       │       │       ├── UserRepository.kt    # interface
-│       │       │       └── UserRepositoryImpl.kt
-│       │       ├── domain/
+│       │       │   ├── repository/
+│       │       │   │   └── UserRepository.kt    # interface
 │       │       │   └── usecase/
 │       │       │       └── GetUserUseCase.kt
 │       │       └── presentation/
@@ -205,35 +207,20 @@ Hilt_Practice_Antigravity/
 ## 6. 주요 에러 처리 패턴
 
 ```kotlin
-// UserError.kt — sealed class
-sealed class UserError {
-    data object NotFound : UserError()
-    data object Network  : UserError()
-    data object Unknown  : UserError()
-
-    companion object {
-        fun from(throwable: Throwable): UserError = when (throwable) {
-            is IOException -> Network
-            else           -> Unknown
-        }
-    }
-}
+// domain/model/UserError.kt — sealed class
+sealed class UserError { ... }
 
 // ViewModel에서 Result.fold 패턴 (실제 UserViewModel.kt)
 _uiState.value = getUserUseCase(userId).fold(
     onSuccess = { user -> UserUiState.Success(user.toUiModel()) },
-    onFailure = { throwable -> UserUiState.Error(UserError.from(throwable)) }
+    onFailure = { throwable ->
+        if (throwable is CancellationException) throw throwable
+        UserUiState.Error(UserError.from(throwable))
+    }
 )
-// ※ CancellationException 처리:
-// UserError.from()이 IOException → Network, 나머지 → Unknown으로만 분기함.
-// 현재 구현에서는 CancellationException을 Unknown으로 처리한다.
-// 개선 포인트: onFailure에서 CancellationException을 먼저 rethrow하는 것이 권장됨.
 ```
 
-> [!IMPORTANT]
-> **현재 구현의 개선 포인트**: `UserError.from()`은 `CancellationException`을 `Unknown`으로 분류합니다.
-> 이상적으로는 `onFailure { throwable -> if (throwable is CancellationException) throw throwable ... }` 패턴으로
-> 코루틴 취소 신호를 먼저 처리해야 합니다. 이 항목은 추후 리팩토링 대상입니다.
+> `UserRepositoryImpl`과 `UserViewModel` 모두 `onFailure`/`catch`에서 `CancellationException`을 rethrow합니다.
 
 ---
 
@@ -254,7 +241,7 @@ _uiState.value = getUserUseCase(userId).fold(
 test/
 ├── util/MainDispatcherRule.kt           — StandardTestDispatcher, TestCoroutineScheduler
 ├── data/repository/UserRepositoryImplTest.kt   — 3개 테스트
-│     (성공 케이스, NotFound 에러, Network 에러)
+│     (성공 Result, 요청 id 반환, User non-null)
 ├── domain/usecase/GetUserUseCaseTest.kt         — 2개 테스트
 │     (성공 위임, 실패 위임)
 └── presentation/viewmodel/UserViewModelTest.kt  — 5개 테스트
@@ -279,6 +266,7 @@ test/
 | 5 | Debug 상태 컨트롤 바 추가 (build variant source set 분리) | 2026-04 |
 | 6 | 단위 테스트 10개 작성 | 2026-04 |
 | 7 | Navigation 완성: HomeRoute 신규 + AppNavHost·MainActivity 연결 | 2026-05-28 |
+| 8 | domain 레이어 정리: `data/model`·`data/repository` 중복 제거, import 통일 | 2026-05-28 |
 
 **해결한 주요 리팩토링 이슈**:
 - `User?` → `Result<User>` 반환 타입 변경

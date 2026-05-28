@@ -1,7 +1,7 @@
 package com.cret.hilt_practice.di
 
-import com.cret.hilt_practice.data.repository.UserRepository
 import com.cret.hilt_practice.data.repository.UserRepositoryImpl
+import com.cret.hilt_practice.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

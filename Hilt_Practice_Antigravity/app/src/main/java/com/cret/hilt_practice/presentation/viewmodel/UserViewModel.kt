@@ -2,11 +2,13 @@ package com.cret.hilt_practice.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cret.hilt_practice.data.model.UserError
+import com.cret.hilt_practice.domain.model.User
+import com.cret.hilt_practice.domain.model.UserError
 import com.cret.hilt_practice.domain.usecase.GetUserUseCase
 import com.cret.hilt_practice.presentation.model.UserUiModel
 import com.cret.hilt_practice.presentation.model.UserUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,11 +46,14 @@ class UserViewModel @Inject constructor(
 
             _uiState.value = getUserUseCase(userId).fold(
                 onSuccess = { user -> UserUiState.Success(user.toUiModel()) },
-                onFailure = { throwable -> UserUiState.Error(UserError.from(throwable)) }
+                onFailure = { throwable ->
+                    if (throwable is CancellationException) throw throwable
+                    UserUiState.Error(UserError.from(throwable))
+                }
             )
         }
     }
 
-    private fun com.cret.hilt_practice.data.model.User.toUiModel() =
+    private fun User.toUiModel() =
         UserUiModel(id = id, displayName = name)
 }

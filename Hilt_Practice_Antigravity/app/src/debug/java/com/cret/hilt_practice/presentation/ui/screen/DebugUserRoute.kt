@@ -27,7 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cret.hilt_practice.data.model.UserError
+import com.cret.hilt_practice.domain.model.UserError
 import com.cret.hilt_practice.presentation.model.UserUiModel
 import com.cret.hilt_practice.presentation.model.UserUiState
 import com.cret.hilt_practice.presentation.viewmodel.UserViewModel

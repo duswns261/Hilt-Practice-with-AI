@@ -1,6 +1,7 @@
 package com.cret.hilt_practice.data.repository
 
-import com.cret.hilt_practice.data.model.User
+import com.cret.hilt_practice.domain.model.User
+import com.cret.hilt_practice.domain.repository.UserRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import javax.inject.Inject

@@ -1,4 +1,4 @@
-package com.cret.hilt_practice.data.model
+package com.cret.hilt_practice.domain.model
 
 data class User(
     val id: String,
