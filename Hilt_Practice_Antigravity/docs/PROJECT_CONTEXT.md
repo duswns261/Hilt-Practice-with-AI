@@ -2,7 +2,7 @@
 
 > **목적**: 이 문서는 AI 어시스턴트(Antigravity)가 이 프로젝트를 처음 대화에서도 즉시 파악하고  
 > 정확한 코드 리뷰·기능 추가·리팩토링 지원을 할 수 있도록 작성된 컨텍스트 파일입니다.  
-> **마지막 업데이트**: 2026-05-28 (domain 레이어 정리, CancellationException 적용)
+> **마지막 업데이트**: 2026-05-28 (미사용 패키지·예제 테스트 정리)
 
 ---
 
@@ -46,7 +46,7 @@
 ### 레이어 구조 (Clean Architecture)
 
 ```
-data/
+data/                       — 구현체만 (model/ 없음, API·DB 추가 시 remote/·local/ 확장)
   repository/
     UserRepositoryImpl.kt   — @Inject constructor, domain 모델 반환, mock API
 
@@ -107,6 +107,7 @@ UserScreen  (순수 Composable — 테스트 가능)
 - **UserUiModel 분리**: 도메인 `User` 객체가 UI 레이어에 직접 노출되지 않음
 - **Result<T> 반환**: `User?` nullable 대신 `Result<User>`로 에러 표현 명확화
 - **UseCase 계층**: ViewModel이 Repository를 직접 호출하지 않음
+- **data 레이어 최소 구성**: mock 단계에서는 `repository/` 구현체만 두고, 도메인 모델·인터페이스는 `domain/`에 둠
 
 ---
 
@@ -167,6 +168,10 @@ Hilt_Practice_Antigravity/
 │       │           ├── model/
 │       │           │   ├── UserUiModel.kt
 │       │           │   └── UserUiState.kt       # sealed interface
+│       │           ├── navigation/
+│       │           │   ├── AppNavHost.kt           # NavHost, 전체 라우트 등록
+│       │           │   ├── HomeDestination.kt      # ROUTE = "home"
+│       │           │   └── UserDestination.kt      # ROUTE = "user/{userId}"
 │       │           ├── viewmodel/
 │       │           │   └── UserViewModel.kt     # @HiltViewModel
 │       │           └── ui/
@@ -179,10 +184,9 @@ Hilt_Practice_Antigravity/
 │       │               │   ├── LoadingContent.kt
 │       │               │   └── ErrorContent.kt
 │       │               └── theme/
-│       │           └── navigation/
-│       │               ├── AppNavHost.kt           # NavHost, 전체 라우트 등록
-│       │               ├── HomeDestination.kt      # ROUTE = "home"
-│       │               └── UserDestination.kt      # ROUTE = "user/{userId}"
+│       │                   ├── Color.kt
+│       │                   ├── Theme.kt
+│       │                   └── Type.kt
 │       ├── debug/
 │       │   └── .../screen/DebugUserRoute.kt    # 상태 컨트롤 바 포함
 │       ├── release/
@@ -193,6 +197,7 @@ Hilt_Practice_Antigravity/
 │               ├── data/repository/UserRepositoryImplTest.kt  # 3개 테스트
 │               ├── domain/usecase/GetUserUseCaseTest.kt       # 2개 테스트
 │               └── presentation/viewmodel/UserViewModelTest.kt # 5개 테스트
+│           (Android Studio 기본 ExampleUnitTest·ExampleInstrumentedTest는 제거됨)
 └── docs/
     ├── screenshots/                         # 앱 스크린샷 5장
     └── retrospective/
@@ -267,6 +272,7 @@ test/
 | 6 | 단위 테스트 10개 작성 | 2026-04 |
 | 7 | Navigation 완성: HomeRoute 신규 + AppNavHost·MainActivity 연결 | 2026-05-28 |
 | 8 | domain 레이어 정리: `data/model`·`data/repository` 중복 제거, import 통일 | 2026-05-28 |
+| 9 | 미사용 정리: 빈 `data/model` 디렉터리·예제 테스트 제거, PROJECT_CONTEXT 파일 맵 수정 | 2026-05-28 |
 
 **해결한 주요 리팩토링 이슈**:
 - `User?` → `Result<User>` 반환 타입 변경
@@ -303,7 +309,7 @@ test/
 
 > [!TIP]
 > 새 기능 추가 시 체크리스트:
-> 1. `data/model/` — 새 도메인 모델 or Error 타입 필요한가?
+> 1. `domain/model/` — 새 도메인 모델 or Error 타입 필요한가? (`data/`에는 DTO·Entity만)
 > 2. `domain/usecase/` — UseCase 계층 거치는가?
 > 3. `presentation/model/` — UiModel / UiState 분리되었는가?
 > 4. ViewModel → Route → Screen 흐름 유지되는가?
